@@ -3,19 +3,18 @@ from enum import Enum
 
 from PyQt5.QtCore import QLocale
 from PyQt5.QtGui import QColor
-from qfluentwidgets import (
+
+from .json_config import (
     BoolValidator,
     ConfigItem,
     ConfigSerializer,
     EnumSerializer,
     FolderValidator,
+    JsonConfig,
     OptionsConfigItem,
     OptionsValidator,
-    QConfig,
     RangeConfigItem,
     RangeValidator,
-    Theme,
-    qconfig,
 )
 
 from app.config import SETTINGS_PATH, WORK_PATH
@@ -73,7 +72,7 @@ class PlatformAwareTranscribeModelValidator(OptionsValidator):
         return value if self.validate(value) else self._options[0]
 
 
-class Config(QConfig):
+class Config(JsonConfig):
     """应用配置"""
 
     # LLM配置
@@ -292,6 +291,12 @@ class Config(QConfig):
 
 
 cfg = Config()
+
+# 主题相关配置（保留接口兼容性）
+class Theme:
+    DARK = "Dark"
+    LIGHT = "Light"
+
 cfg.themeMode.value = Theme.DARK
 cfg.themeColor.value = QColor("#ff28f08b")
-qconfig.load(SETTINGS_PATH, cfg)
+cfg.load(SETTINGS_PATH)
