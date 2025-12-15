@@ -14,7 +14,13 @@ def test_cudnn():
     try:
         import nvidia.cudnn
         print(f"✓ cuDNN 导入成功")
-        print(f"  版本: {nvidia.cudnn.__version__}")
+
+        # 版本信息可能不存在
+        try:
+            print(f"  版本: {nvidia.cudnn.__version__}")
+        except AttributeError:
+            print(f"  版本: (版本信息不可用)")
+
         print(f"  路径: {nvidia.cudnn.__path__[0]}")
 
         # 检查库文件
@@ -40,7 +46,13 @@ def test_cublas():
     try:
         import nvidia.cublas
         print(f"✓ cuBLAS 导入成功")
-        print(f"  版本: {nvidia.cublas.__version__}")
+
+        # 版本信息可能不存在
+        try:
+            print(f"  版本: {nvidia.cublas.__version__}")
+        except AttributeError:
+            print(f"  版本: (版本信息不可用)")
+
         return True
     except Exception as e:
         print(f"✗ cuBLAS 导入失败: {e}")
@@ -59,7 +71,7 @@ def test_faster_whisper():
 
         # 检查本地测试模型是否存在
         test_model_paths = [
-            "/app/AppData/models/faster-whisper-tiny",  # Docker 环境
+            "/app/AppData/models/faster-whisper-tiny/",  # Docker 环境
             "resource/models/faster-whisper-tiny",      # 本地开发环境
             "AppData/models/faster-whisper-tiny",       # 备选路径
         ]
@@ -78,9 +90,17 @@ def test_faster_whisper():
             print(f"  计算类型: float16")
             del model
         else:
-            print(f"⚠ 本地测试模型不存在，跳过模型加载测试")
+            print(f"  本地测试模型不存在")
             print(f"  搜索路径: {test_model_paths}")
-            print(f"  提示: faster-whisper 库导入成功，基本功能正常")
+            print(f"  尝试下载 tiny 模型进行测试...")
+
+            # 使用在线 tiny 模型进行测试
+            model = WhisperModel("tiny", device="cuda", compute_type="float16")
+            print(f"✓ 模型下载并初始化成功")
+            print(f"  模型: tiny (在线下载)")
+            print(f"  设备: cuda")
+            print(f"  计算类型: float16")
+            del model
 
         return True
     except Exception as e:
