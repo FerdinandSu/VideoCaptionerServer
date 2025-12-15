@@ -30,8 +30,12 @@ COPY pyproject.toml ./
 COPY app ./app
 COPY main.py ./
 
-# 安装 Python 依赖
-RUN python3 -m uv pip install --system -e .
+# 安装 Python 依赖和 cuDNN
+RUN python3 -m uv pip install --system -e . && \
+    python3 -m pip install nvidia-cudnn-cu12 nvidia-cublas-cu12
+
+# 设置 cuDNN 库路径
+ENV LD_LIBRARY_PATH=/usr/local/lib/python3.10/dist-packages/nvidia/cudnn/lib:$LD_LIBRARY_PATH
 
 # 创建必要的目录
 RUN mkdir -p /app/AppData/models \
