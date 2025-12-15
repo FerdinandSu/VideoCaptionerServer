@@ -38,6 +38,7 @@ from app.config import RESOURCE_PATH  # noqa: E402
 from app.core.utils.cache import disable_cache, enable_cache  # noqa: E402
 from app.core.utils.logger import setup_logger  # noqa: E402
 from app.view.main_window import MainWindow  # noqa: E402
+from app.rpc import start_rpc_server, stop_rpc_server  # noqa: E402
 
 logger_instance = setup_logger("VideoCaptioner")
 
@@ -79,6 +80,28 @@ myTranslator.load(str(translations_path))
 app.installTranslator(translator)
 app.installTranslator(myTranslator)
 
+# 根据配置启动 RPC 服务器
+if cfg.get(cfg.rpc_enabled):
+    logger_instance.info("启动 RPC 服务器...")
+    try:
+        rpc_host = cfg.get(cfg.rpc_host)
+        rpc_port = cfg.get(cfg.rpc_port)
+        start_rpc_server(host=rpc_host, port=rpc_port)
+        logger_instance.info(f"RPC 服务器已启动: http://{rpc_host}:{rpc_port}")
+    except Exception as e:
+        logger_instance.error(f"RPC 服务器启动失败: {e}", exc_info=True)
+
 w = MainWindow()
 w.show()
-sys.exit(app.exec_())
+exit_code = app.exec_()
+
+# 清理 RPC 服务器
+if cfg.get(cfg.rpc_enabled):
+    logger_instance.info("停止 RPC 服务器...")
+    try:
+        stop_rpc_server()
+        logger_instance.info("RPC 服务器已停止")
+    except Exception as e:
+        logger_instance.error(f"停止 RPC 服务器失败: {e}", exc_info=True)
+
+sys.exit(exit_code)

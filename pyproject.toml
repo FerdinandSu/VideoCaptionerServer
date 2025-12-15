@@ -17,6 +17,10 @@ dependencies = [
     "pydub",
     "tenacity",
     "GPUtil>=1.4.0",
+    "flask>=3.1.2",
+    "signalrcore>=0.9.5",
+    "flasgger>=0.9.7.1",
+    "faster-whisper>=1.1.0",
 ]
 
 [build-system]

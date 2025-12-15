@@ -2,6 +2,7 @@ from app.core.asr.asr_data import ASRData
 from app.core.asr.bcut import BcutASR
 from app.core.asr.chunked_asr import ChunkedASR
 from app.core.asr.faster_whisper import FasterWhisperASR
+from app.core.asr.faster_whisper_python import FasterWhisperPythonASR
 from app.core.asr.jianying import JianYingASR
 from app.core.asr.whisper_api import WhisperAPI
 from app.core.asr.whisper_cpp import WhisperCppASR
@@ -68,6 +69,9 @@ def _create_asr_instance(audio_path: str, config: TranscribeConfig) -> ChunkedAS
 
     elif model_type == TranscribeModelEnum.FASTER_WHISPER:
         return _create_faster_whisper_asr(audio_path, config)
+
+    elif model_type == TranscribeModelEnum.FASTER_WHISPER_PYTHON:
+        return _create_faster_whisper_python_asr(audio_path, config)
 
     else:
         raise ValueError(f"Invalid transcription model: {model_type}")
@@ -156,6 +160,31 @@ def _create_faster_whisper_asr(audio_path: str, config: TranscribeConfig) -> Chu
         chunk_concurrency=1,  # 本地转录使用单线程
         chunk_length=60 * 20,  # 每块20分钟
     )
+
+
+def _create_faster_whisper_python_asr(audio_path: str, config: TranscribeConfig) -> ChunkedASR:
+    """Create FasterWhisper Python ASR instance with chunking support."""
+    asr_kwargs = {
+        "use_cache": True,
+        "need_word_time_stamp": config.need_word_time_stamp,
+        "language": config.transcribe_language,
+        "whisper_model": (
+            config.faster_whisper_model.value if config.faster_whisper_model else "base"
+        ),
+        "model_dir": config.faster_whisper_model_dir or None,
+        "device": config.faster_whisper_device,
+        "vad_filter": config.faster_whisper_vad_filter,
+        "vad_threshold": config.faster_whisper_vad_threshold,
+        "prompt": config.faster_whisper_prompt,
+    }
+    return ChunkedASR(
+        asr_class=FasterWhisperPythonASR,
+        audio_path=audio_path,
+        asr_kwargs=asr_kwargs,
+        chunk_concurrency=1,  # 本地转录使用单线程
+        chunk_length=60 * 20,  # 每块20分钟
+    )
+
 
 
 if __name__ == "__main__":

@@ -289,6 +289,12 @@ class Config(JsonConfig):
     # ------------------- 缓存配置 -------------------
     cache_enabled = ConfigItem("Cache", "CacheEnabled", True, BoolValidator())
 
+    # ------------------- RPC 配置 -------------------
+    rpc_enabled = ConfigItem("RPC", "Enabled", False, BoolValidator())
+    rpc_host = ConfigItem("RPC", "Host", "0.0.0.0")
+    rpc_port = RangeConfigItem("RPC", "Port", 5000, RangeValidator(1024, 65535))
+    rpc_master_url = ConfigItem("RPC", "MasterUrl", "")
+
 
 cfg = Config()
 

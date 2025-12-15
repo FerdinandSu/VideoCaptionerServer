@@ -114,6 +114,7 @@ class TranscribeModelEnum(Enum):
     JIANYING = "J 接口"
     WHISPER_API = "Whisper [API] ✨"
     FASTER_WHISPER = "FasterWhisper ✨"
+    FASTER_WHISPER_PYTHON = "FasterWhisper [Python] 🐍"
     WHISPER_CPP = "WhisperCpp"
 
 
