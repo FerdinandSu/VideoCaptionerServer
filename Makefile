@@ -46,6 +46,9 @@ shell:
 test:
 	@bash test-docker.sh
 
+test-cudnn:
+	@bash test-cudnn-runtime.sh
+
 clean:
 	docker compose down -v
 	docker rmi videocaptioner:latest || true
