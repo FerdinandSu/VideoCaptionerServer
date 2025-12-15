@@ -1,5 +1,5 @@
-# 使用 NVIDIA CUDA 基础镜像（不含 cuDNN，我们将安装 cuDNN 9）
-FROM nvidia/cuda:12.2.2-runtime-ubuntu22.04
+# 使用 NVIDIA CUDA 12.8.1 + cuDNN 9 runtime 镜像
+FROM nvidia/cuda:12.8.1-cudnn-runtime-ubuntu22.04
 
 # 设置环境变量
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -28,27 +28,18 @@ WORKDIR /app
 # 第一步：只复制依赖声明文件（改动频率低）
 COPY pyproject.toml ./
 
-# 第二步：安装 cuDNN 和 cuBLAS（独立于项目代码，会被 Docker 缓存）
-RUN python3 -m pip install nvidia-cudnn-cu12 nvidia-cublas-cu12
-
-# 第三步：创建 cuDNN 库符号链接
-RUN CUDNN_PATH=$(python3 -c "import nvidia.cudnn; print(nvidia.cudnn.__path__[0])") && \
-    echo "cuDNN path: $CUDNN_PATH" && \
-    ln -s $CUDNN_PATH/lib/libcudnn*.so* /usr/local/lib/ && \
-    ldconfig
-
-# 第四步：复制项目代码（改动频率高，放在后面）
+# 第二步：复制项目代码（改动频率高，放在后面）
 COPY app ./app
 COPY main.py ./
 
-# 第五步：安装项目依赖（只有代码或 pyproject.toml 改变时才重新执行）
+# 第三步：安装项目依赖（只有代码或 pyproject.toml 改变时才重新执行）
 RUN python3 -m uv pip install --system -e .
 
 COPY test_cudnn.py ./
 
 COPY resource/models/faster-whisper-tiny/ /test/faster-whisper-tiny/
 
-# 第六步：测试 cuDNN 和 faster-whisper 是否正常工作
+# 第四步：测试 cuDNN 和 faster-whisper 是否正常工作
 RUN echo "\n======================================" && \
     echo "运行环境测试..." && \
     echo "======================================\n" && \
