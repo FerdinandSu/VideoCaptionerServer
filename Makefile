@@ -1,4 +1,4 @@
-.PHONY: help build up down logs restart clean test
+.PHONY: help build up down logs restart clean test rebuild
 
 help:
 	@echo "VideoCaptioner Docker 管理命令"
@@ -9,6 +9,7 @@ help:
 	@echo "  make down        - 停止服务"
 	@echo "  make logs        - 查看日志"
 	@echo "  make restart     - 重启服务"
+	@echo "  make rebuild     - 重新构建并启动"
 	@echo "  make shell       - 进入容器"
 	@echo "  make test        - 测试 API"
 	@echo "  make clean       - 清理容器和镜像"
@@ -30,6 +31,13 @@ logs:
 
 restart:
 	docker compose restart
+
+rebuild:
+	docker compose down
+	docker compose build
+	docker compose up -d
+	@echo "服务已重新构建并启动"
+	@echo "查看日志: make logs"
 
 shell:
 	docker compose exec videocaptioner /bin/bash
