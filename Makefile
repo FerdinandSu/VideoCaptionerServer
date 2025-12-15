@@ -1,4 +1,4 @@
-.PHONY: help build up down logs restart clean test rebuild
+.PHONY: help build up down logs restart clean test rebuild test-cudnn
 
 help:
 	@echo "VideoCaptioner Docker 管理命令"
@@ -12,6 +12,7 @@ help:
 	@echo "  make rebuild     - 重新构建并启动"
 	@echo "  make shell       - 进入容器"
 	@echo "  make test        - 测试 API"
+	@echo "  make test-cudnn  - 测试 cuDNN 环境"
 	@echo "  make clean       - 清理容器和镜像"
 	@echo "  make gpu-test    - 测试 GPU 访问"
 
