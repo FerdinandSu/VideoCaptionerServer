@@ -1,5 +1,5 @@
 # 使用包含 cuDNN 的 NVIDIA CUDA 基础镜像
-FROM nvidia/cuda:12.2.0-cudnn8-runtime-ubuntu22.04
+FROM nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
 
 # 设置环境变量
 ENV DEBIAN_FRONTEND=noninteractive \
