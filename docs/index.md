@@ -1,37 +1,90 @@
----
-layout: page
-title: VideoCaptioner - 基于LLM的智能视频字幕处理工具
-titleTemplate: false
-description: 免费开源的AI视频字幕处理助手，支持Whisper语音识别、LLM智能断句、字幕优化和99种语言翻译。一键生成高质量字幕，适用于YouTube、B站等平台。
+# VideoCaptioner 文档索引
 
-head:
-  - - meta
-    - name: keywords
-      content: VideoCaptioner,卡卡字幕助手,视频字幕生成器,AI自动字幕,Whisper中文字幕,LLM字幕翻译,免费字幕工具,开源字幕软件,视频转文字,语音识别字幕,B站字幕生成,YouTube字幕工具,多语言字幕,字幕断句优化,视频字幕处理,自动生成字幕,字幕制作软件,视频配字幕
-  - - meta
-    - property: og:title
-      content: VideoCaptioner - 基于LLM的智能视频字幕处理工具 | 免费开源
-  - - meta
-    - property: og:description
-      content: 免费开源的AI视频字幕处理助手。支持Whisper语音识别、LLM智能断句与翻译、多语言字幕生成。适用于YouTube、B站等平台，支持99种语言。一键处理，专业质量。
-  - - meta
-    - property: og:url
-      content: https://weifeng2333.github.io/VideoCaptioner/
-  - - meta
-    - property: og:type
-      content: website
-  - - meta
-    - property: article:published_time
-      content: 2024-01-01T00:00:00+08:00
-  - - meta
-    - property: article:modified_time
-      content: 2025-01-25T00:00:00+08:00
-  - - meta
-    - name: twitter:title
-      content: VideoCaptioner - AI Video Subtitle Tool | Free & Open Source
-  - - meta
-    - name: twitter:description
-      content: Free AI-powered subtitle tool with Whisper & LLM. Supports 99 languages, intelligent segmentation, and professional translation.
+## 📚 文档目录
+
+### 快速开始
+- [README](README.md) - 项目概览和快速开始
+
+### API 文档
+- [API 快速入门](api/quickstart.md) - 5 分钟上手指南
+- [RPC API 参考](api/rpc-api.md) - 完整的 API 接口文档
+- [语言参数支持](api/LANGUAGE_PARAMETER_SUPPORT.md) - 转录语言参数详解
+
+### 部署指南
+- [Docker 部署](deployment/DOCKER_DEPLOYMENT.md) - 容器化部署完整指南
+- [Master-Worker 架构](deployment/master-worker-architecture.md) - 分布式架构说明
+
+### 配置参考
+- [配置文件说明](configuration/settings.md) - settings.json 详细配置
+
+## 🗂️ 文档结构
+
+```
+docs/
+├── README.md                           # 主文档入口
+├── INDEX.md                            # 文档索引（本文件）
+├── api/                                # API 文档
+│   ├── quickstart.md                  # 快速入门
+│   ├── rpc-api.md                     # RPC API 参考
+│   └── LANGUAGE_PARAMETER_SUPPORT.md  # 语言参数
+├── deployment/                         # 部署文档
+│   └── DOCKER_DEPLOYMENT.md           # Docker 部署
+├── configuration/                      # 配置文档
+│   └── settings.md                    # 配置说明
+└── development/                        # 开发文档（待添加）
+```
+
+## 📖 推荐阅读顺序
+
+### 新手入门
+1. [README](README.md) - 了解项目
+2. [Docker 部署](deployment/DOCKER_DEPLOYMENT.md) - 部署服务
+3. [API 快速入门](api/quickstart.md) - 开始使用
+
+### 深入使用
+4. [RPC API 参考](api/rpc-api.md) - 详细 API
+5. [配置文件说明](configuration/settings.md) - 自定义配置
+6. [语言参数支持](api/LANGUAGE_PARAMETER_SUPPORT.md) - 高级功能
+
+## 🔍 快速查找
+
+### 我想...
+
+**部署服务**
+→ [Docker 部署](deployment/DOCKER_DEPLOYMENT.md)
+
+**调用 API**
+→ [API 快速入门](api/quickstart.md)
+→ [RPC API 参考](api/rpc-api.md)
+
+**修改配置**
+→ [配置文件说明](configuration/settings.md)
+
+**指定转录语言**
+→ [语言参数支持](api/LANGUAGE_PARAMETER_SUPPORT.md)
+
+**查看完整 API**
+→ [RPC API 参考](api/rpc-api.md)
+
+**了解支持的语言**
+→ [语言参数支持](api/LANGUAGE_PARAMETER_SUPPORT.md#支持的语言代码)
+
+## 📝 文档更新记录
+
+- **2025-12-15**: 初始版本
+  - 添加 Docker 部署文档
+  - 添加 RPC API 参考
+  - 添加语言参数支持文档
+  - 添加配置文件说明
+  - 添加 API 快速入门
+
+## 🤝 贡献文档
+
+如果发现文档有误或需要改进，欢迎：
+- 提交 Issue
+- 发起 Pull Request
+- 通过邮件联系
+
 ---
 
-<CustomHome />
+**最后更新**: 2025-12-15

@@ -44,7 +44,11 @@ class FasterWhisperPythonASR(BaseASR):
         self.model_name = whisper_model
         self.model_dir = model_dir
         self.need_word_time_stamp = need_word_time_stamp
-        self.language = language if language != "auto" else None
+
+        # 转换语言代码（如果需要）
+        from ..entities import TranscribeLanguageEnum
+        self.language = TranscribeLanguageEnum.to_language_code(language)
+
         self.device = device
         self.compute_type = compute_type
 

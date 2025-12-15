@@ -1,0 +1,56 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv
+venv/
+ENV/
+env/
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+work/
+*.log
+*.srt
+*.mp4
+*.wav
+*.mp3
+
+# Documentation
+docs/
+legacy-docs/
+*.md
+!README.md
+
+# Tests
+tests/
+test_*.py
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Local data
+data/
+AppData/
+
+# uv cache
+.uv/

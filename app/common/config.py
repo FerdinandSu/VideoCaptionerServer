@@ -1,9 +1,6 @@
 # coding:utf-8
 from enum import Enum
 
-from PyQt5.QtCore import QLocale
-from PyQt5.QtGui import QColor
-
 from .json_config import (
     BoolValidator,
     ConfigItem,
@@ -38,20 +35,23 @@ from ..core.translate.types import TargetLanguage
 class Language(Enum):
     """软件语言"""
 
-    CHINESE_SIMPLIFIED = QLocale(QLocale.Chinese, QLocale.China)
-    CHINESE_TRADITIONAL = QLocale(QLocale.Chinese, QLocale.HongKong)
-    ENGLISH = QLocale(QLocale.English)
-    AUTO = QLocale()
+    CHINESE_SIMPLIFIED = "zh_CN"
+    CHINESE_TRADITIONAL = "zh_HK"
+    ENGLISH = "en_US"
+    AUTO = "auto"
 
 
 class LanguageSerializer(ConfigSerializer):
     """Language serializer"""
 
     def serialize(self, language):
-        return language.value.name() if language != Language.AUTO else "Auto"
+        return language.value
 
     def deserialize(self, value: str):
-        return Language(QLocale(value)) if value != "Auto" else Language.AUTO
+        for lang in Language:
+            if lang.value == value:
+                return lang
+        return Language.AUTO
 
 
 class PlatformAwareTranscribeModelValidator(OptionsValidator):
@@ -263,24 +263,6 @@ class Config(JsonConfig):
     # ------------------- 保存配置 -------------------
     work_dir = ConfigItem("Save", "Work_Dir", WORK_PATH, FolderValidator())
 
-    # ------------------- 软件页面配置 -------------------
-    micaEnabled = ConfigItem("MainWindow", "MicaEnabled", False, BoolValidator())
-    dpiScale = OptionsConfigItem(
-        "MainWindow",
-        "DpiScale",
-        "Auto",
-        OptionsValidator([1, 1.25, 1.5, 1.75, 2, "Auto"]),
-        restart=True,
-    )
-    language = OptionsConfigItem(
-        "MainWindow",
-        "Language",
-        Language.AUTO,
-        OptionsValidator(Language),
-        LanguageSerializer(),
-        restart=True,
-    )
-
     # ------------------- 更新配置 -------------------
     checkUpdateAtStartUp = ConfigItem(
         "Update", "CheckUpdateAtStartUp", True, BoolValidator()
@@ -297,12 +279,4 @@ class Config(JsonConfig):
 
 
 cfg = Config()
-
-# 主题相关配置（保留接口兼容性）
-class Theme:
-    DARK = "Dark"
-    LIGHT = "Light"
-
-cfg.themeMode.value = Theme.DARK
-cfg.themeColor.value = QColor("#ff28f08b")
 cfg.load(SETTINGS_PATH)

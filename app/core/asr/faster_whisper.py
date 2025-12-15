@@ -97,20 +97,34 @@ class FasterWhisperASR(BaseASR):
             self.sentence = True
 
         # 根据设备选择程序
-        if self.device == "cpu":
-            if shutil.which("faster-whisper-xxl"):
-                self.faster_whisper_program = "faster-whisper-xxl"
-            else:
-                if not shutil.which("faster-whisper"):
-                    raise EnvironmentError("faster-whisper程序未找到，请确保已经下载。")
-                self.faster_whisper_program = "faster-whisper"
-                self.vad_method = ""
-        elif self.device == "cuda":
-            if not shutil.which("faster-whisper-xxl"):
+        # 如果用户配置了完整路径，优先使用配置的路径
+        if self.faster_whisper_program and (
+            os.path.isabs(self.faster_whisper_program)
+            or os.path.exists(self.faster_whisper_program)
+        ):
+            # 验证配置的程序是否存在
+            if not os.path.exists(self.faster_whisper_program):
                 raise EnvironmentError(
-                    "faster-whisper-xxl 程序未找到，请确保已经下载。"
+                    f"配置的 faster-whisper 程序未找到: {self.faster_whisper_program}"
                 )
-            self.faster_whisper_program = "faster-whisper-xxl"
+            # 使用配置的程序路径
+            logger.info(f"使用配置的 faster-whisper 程序: {self.faster_whisper_program}")
+        else:
+            # 否则根据设备类型在 PATH 中查找
+            if self.device == "cpu":
+                if shutil.which("faster-whisper-xxl"):
+                    self.faster_whisper_program = "faster-whisper-xxl"
+                else:
+                    if not shutil.which("faster-whisper"):
+                        raise EnvironmentError("faster-whisper程序未找到，请确保已经下载。")
+                    self.faster_whisper_program = "faster-whisper"
+                    self.vad_method = ""
+            elif self.device == "cuda":
+                if not shutil.which("faster-whisper-xxl"):
+                    raise EnvironmentError(
+                        "faster-whisper-xxl 程序未找到，请确保已经下载。"
+                    )
+                self.faster_whisper_program = "faster-whisper-xxl"
 
     def _build_command(self, audio_input: str) -> List[str]:
         """Build command line arguments for faster-whisper."""
@@ -124,8 +138,11 @@ class FasterWhisperASR(BaseASR):
         ]
 
         # 添加模型目录参数
-        if self.model_dir:
+        if self.model_dir and self.model_dir.strip():  # 确保不是空字符串
+            logger.info(f"使用本地模型目录: {self.model_dir}")
             cmd.extend(["--model_dir", str(self.model_dir)])
+        else:
+            logger.warning(f"未配置有效的 model_dir (当前值: '{self.model_dir}')，将从网络下载模型")
 
         cmd.extend(
             [

@@ -232,12 +232,24 @@ class FlaskAPIServer:
                     video_path:
                       type: string
                       description: 视频文件路径
+                      example: "D:\\videos\\test.mp4"
                     raw_subtitle_path:
                       type: string
                       description: 原始字幕输出路径
+                      example: "D:\\videos\\test.srt"
                     translated_subtitle_path:
                       type: string
                       description: 翻译字幕输出路径
+                      example: "D:\\videos\\test.translated.srt"
+                    language:
+                      type: string
+                      description: |
+                        转录语言（可选）
+                        - 不提供：使用配置文件中的语言设置
+                        - "Auto" 或 None: 自动检测语言
+                        - ISO 语言代码: "en", "zh", "ja", "ko" 等
+                        - 语言名称: "英语", "中文", "日本語" 等
+                      example: "en"
             responses:
               200:
                 description: 任务已启动
@@ -263,6 +275,7 @@ class FlaskAPIServer:
             video_path = data.get("video_path")
             raw_subtitle_path = data.get("raw_subtitle_path")
             translated_subtitle_path = data.get("translated_subtitle_path")
+            language = data.get("language")  # 获取可选的语言参数
 
             if not video_path or not raw_subtitle_path:
                 return (
@@ -277,7 +290,7 @@ class FlaskAPIServer:
 
             try:
                 task_id = rpc_service.start_subtitize(
-                    video_path, raw_subtitle_path, translated_subtitle_path
+                    video_path, raw_subtitle_path, translated_subtitle_path, language
                 )
 
                 if task_id > 0:

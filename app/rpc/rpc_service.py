@@ -187,7 +187,11 @@ class VideoCaptionerRPCService:
         }
 
     def start_subtitize(
-        self, video_path: str, raw_subtitle_path: str, translated_subtitle_path: str
+        self,
+        video_path: str,
+        raw_subtitle_path: str,
+        translated_subtitle_path: str,
+        language: Optional[str] = None,
     ) -> int:
         """
         启动字幕化任务
@@ -196,6 +200,8 @@ class VideoCaptionerRPCService:
             video_path: 视频文件路径
             raw_subtitle_path: 原始字幕输出路径
             translated_subtitle_path: 翻译字幕输出路径
+            language: 转录语言（可选，ISO 语言代码如 'en', 'zh'，或语言名称如 '英语', '中文'）
+                     如果不提供，将使用配置文件中的语言设置
 
         Returns:
             task_id: 正数表示任务ID，负数表示错误代码
@@ -207,7 +213,8 @@ class VideoCaptionerRPCService:
             logger.info(
                 f"收到 StartSubtitize 请求: video_path={video_path}, "
                 f"raw_subtitle_path={raw_subtitle_path}, "
-                f"translated_subtitle_path={translated_subtitle_path}"
+                f"translated_subtitle_path={translated_subtitle_path}, "
+                f"language={language}"
             )
 
             # 创建任务
@@ -215,6 +222,7 @@ class VideoCaptionerRPCService:
                 video_path=video_path,
                 raw_subtitle_path=raw_subtitle_path,
                 translated_subtitle_path=translated_subtitle_path,
+                language=language,
             )
 
             if task_id < 0:

@@ -33,6 +33,7 @@ class SubtitizeTask:
     video_path: str
     raw_subtitle_path: str
     translated_subtitle_path: str
+    language: Optional[str] = None  # 转录语言（可选）
 
     # 任务状态
     state: SubtitizeTaskState = SubtitizeTaskState.QUEUED
@@ -105,7 +106,11 @@ class SubtitizeTaskManager:
         self._on_faulted = on_faulted
 
     def create_task(
-            self, video_path: str, raw_subtitle_path: str, translated_subtitle_path: str
+            self,
+            video_path: str,
+            raw_subtitle_path: str,
+            translated_subtitle_path: str,
+            language: Optional[str] = None,
     ) -> int:
         """
         创建新任务
@@ -114,6 +119,7 @@ class SubtitizeTaskManager:
             video_path: 视频文件路径
             raw_subtitle_path: 原始字幕输出路径
             translated_subtitle_path: 翻译字幕输出路径
+            language: 转录语言（可选）
 
         Returns:
             task_id: 正数表示任务ID，负数表示错误代码
@@ -145,6 +151,7 @@ class SubtitizeTaskManager:
                 video_path=video_path,
                 raw_subtitle_path=raw_subtitle_path,
                 translated_subtitle_path=translated_subtitle_path,
+                language=language,
             )
 
             # 重置停止事件

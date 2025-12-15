@@ -1,0 +1,30 @@
+# Docker Compose 开发环境覆盖配置
+# 使用方法: docker compose -f docker-compose.yml -f docker-compose.override.yml up
+
+version: '3.8'
+
+services:
+  videocaptioner:
+    # 开发模式：挂载源代码以支持热重载
+    volumes:
+      # 源代码挂载
+      - ./app:/app/app:rw
+      - ./main.py:/app/main.py:rw
+
+      # 配置文件
+      - ./settings.json:/app/settings.json:rw
+
+      # HuggingFace 缓存（避免重复下载）
+      - ~/.cache/huggingface:/root/.cache/huggingface:rw
+
+    # 开发环境变量
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - DEBUG=1
+
+    # 允许交互式终端
+    stdin_open: true
+    tty: true
+
+    # 覆盖启动命令（可选）
+    # command: python3 -m debugpy --listen 0.0.0.0:5678 main.py

@@ -130,6 +130,11 @@ class SubtitizeExecutor:
         import tempfile
 
         try:
+            # 获取当前任务
+            task = task_manager.get_current_task()
+            if task is None or task.task_id != task_id:
+                raise ValueError(f"任务不存在: task_id={task_id}")
+
             # 检查视频文件是否存在
             video_path_obj = Path(video_path)
             if not video_path_obj.exists():
@@ -138,7 +143,11 @@ class SubtitizeExecutor:
             # 创建转录配置（从全局配置读取）
             transcribe_config = TranscribeConfig(
                 transcribe_model=cfg.get(cfg.transcribe_model),
-                transcribe_language=cfg.get(cfg.transcribe_language).value,
+                transcribe_language=(
+                    task.language
+                    if task.language
+                    else cfg.get(cfg.transcribe_language).value
+                ),
                 need_word_time_stamp=True,
                 output_format=cfg.get(cfg.transcribe_output_format),
                 # Whisper Cpp 配置
@@ -162,6 +171,7 @@ class SubtitizeExecutor:
             )
 
             logger.info(f"\n{transcribe_config.print_config()}")
+            logger.info(f"faster_whisper_model_dir 配置值: '{transcribe_config.faster_whisper_model_dir}'")
 
             # 创建临时音频文件
             task_manager.update_progress(

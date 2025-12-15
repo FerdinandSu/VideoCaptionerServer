@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  videocaptioner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: videocaptioner:latest
+    container_name: videocaptioner-rpc
+
+    # GPU 支持
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+    # 端口映射
+    ports:
+      - "5000:5000"
+
+    # 挂载目录
+    volumes:
+      # 配置文件（只读）
+      - ./settings.json:/app/settings.json:ro
+
+      # FasterWhisper 模型目录（只读）
+      - ./AppData/models:/app/AppData/models:ro
+
+      # 数据目录（读写）
+      - ./data:/data:rw
+
+      # 工作目录（读写）
+      - ./work:/app/work:rw
+
+    # 环境变量
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - CUDA_VISIBLE_DEVICES=0
+
+    # 重启策略
+    restart: unless-stopped
+
+    # 网络模式
+    network_mode: bridge
+
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

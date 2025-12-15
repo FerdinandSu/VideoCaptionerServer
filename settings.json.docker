@@ -1,0 +1,64 @@
+{
+  "Cache": {
+    "CacheEnabled": true
+  },
+  "FasterWhisper": {
+    "Device": "cuda",
+    "FfMdxKim2": false,
+    "Model": "large-v2",
+    "ModelDir": "/app/AppData/models",
+    "OneWord": true,
+    "Prompt": "",
+    "VadFilter": true,
+    "VadMethod": "silero_v4",
+    "VadThreshold": 0.4
+  },
+  "LLM": {
+    "LLMService": "Ollama",
+    "Ollama_API_Base": "http://host.docker.internal:11434/v1",
+    "Ollama_API_Key": "ollama",
+    "Ollama_Model": "gemma3:12b"
+  },
+  "RPC": {
+    "Enabled": true,
+    "Host": "0.0.0.0",
+    "Port": 5000
+  },
+  "Save": {
+    "Work_Dir": "/app/work"
+  },
+  "Subtitle": {
+    "CustomPromptText": "",
+    "MaxWordCountCJK": 25,
+    "MaxWordCountEnglish": 20,
+    "NeedOptimize": false,
+    "NeedSplit": true,
+    "NeedTranslate": true,
+    "TargetLanguage": "简体中文"
+  },
+  "SubtitleStyle": {
+    "Layout": "译文在上",
+    "PreviewImage": "",
+    "StyleName": "default"
+  },
+  "Transcribe": {
+    "OutputFormat": "SRT",
+    "TranscribeLanguage": "Auto",
+    "TranscribeModel": "FasterWhisper [Python] 🐍"
+  },
+  "Translate": {
+    "BatchSize": 10,
+    "DeeplxEndpoint": "",
+    "NeedReflectTranslate": false,
+    "ThreadNum": 8,
+    "TranslatorServiceEnum": "LLM 大模型翻译"
+  },
+  "Update": {
+    "CheckUpdateAtStartUp": false
+  },
+  "Video": {
+    "NeedVideo": true,
+    "SoftSubtitle": false,
+    "VideoQuality": "极高质量"
+  }
+}

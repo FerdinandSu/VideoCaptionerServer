@@ -261,7 +261,7 @@ class JsonConfig:
         # 总是保存的组
         always_save_groups = {
             "Translate", "Subtitle", "Video", "SubtitleStyle",
-            "Save", "MainWindow", "Update", "Cache", "RPC", "Transcribe"
+            "Save", "Update", "Cache", "RPC", "Transcribe"
         }
 
         if group in always_save_groups:

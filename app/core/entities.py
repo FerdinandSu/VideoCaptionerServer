@@ -213,6 +213,7 @@ class VideoQualityEnum(Enum):
 class TranscribeLanguageEnum(Enum):
     """转录语言"""
 
+    AUTO = "Auto"
     ENGLISH = "英语"
     CHINESE = "中文"
     JAPANESE = "日本語"
@@ -287,33 +288,116 @@ class TranscribeLanguageEnum(Enum):
     GEORGIAN = "Georgian"
     BELARUSIAN = "Belarusian"
     TAJIK = "Tajik"
-    SINDHI = "Sindhi"
-    GUJARATI = "Gujarati"
-    AMHARIC = "Amharic"
-    YIDDISH = "Yiddish"
-    LAO = "Lao"
-    UZBEK = "Uzbek"
-    FAROESE = "Faroese"
-    HAITIAN_CREOLE = "Haitian Creole"
-    PASHTO = "Pashto"
-    TURKMEN = "Turkmen"
-    NYNORSK = "Nynorsk"
-    MALTESE = "Maltese"
-    SANSKRIT = "Sanskrit"
-    LUXEMBOURGISH = "Luxembourgish"
-    MYANMAR = "Myanmar"
-    TIBETAN = "Tibetan"
-    TAGALOG = "Tagalog"
-    MALAGASY = "Malagasy"
-    ASSAMESE = "Assamese"
-    TATAR = "Tatar"
-    HAWAIIAN = "Hawaiian"
-    LINGALA = "Lingala"
-    HAUSA = "Hausa"
-    BASHKIR = "Bashkir"
-    JAVANESE = "Javanese"
-    SUNDANESE = "Sundanese"
-    CANTONESE = "Cantonese"
+
+    @staticmethod
+    def to_language_code(value) -> str:
+        """将 TranscribeLanguageEnum 转换为 ISO 语言代码
+
+        Args:
+            value: TranscribeLanguageEnum 枚举值或字符串
+
+        Returns:
+            ISO 语言代码，如果无法识别则返回 None（自动检测）
+        """
+        # 语言名称到代码的映射
+        language_map = {
+            "Auto": None,
+            "英语": "en",
+            "中文": "zh",
+            "日本語": "ja",
+            "韩语": "ko",
+            "粤语": "yue",
+            "法语": "fr",
+            "德语": "de",
+            "西班牙语": "es",
+            "俄语": "ru",
+            "葡萄牙语": "pt",
+            "土耳其语": "tr",
+            "Polish": "pl",
+            "Catalan": "ca",
+            "Dutch": "nl",
+            "Arabic": "ar",
+            "Swedish": "sv",
+            "Italian": "it",
+            "Indonesian": "id",
+            "Hindi": "hi",
+            "Finnish": "fi",
+            "Vietnamese": "vi",
+            "Hebrew": "he",
+            "Ukrainian": "uk",
+            "Greek": "el",
+            "Malay": "ms",
+            "Czech": "cs",
+            "Romanian": "ro",
+            "Danish": "da",
+            "Hungarian": "hu",
+            "Tamil": "ta",
+            "Norwegian": "no",
+            "Thai": "th",
+            "Urdu": "ur",
+            "Croatian": "hr",
+            "Bulgarian": "bg",
+            "Lithuanian": "lt",
+            "Latin": "la",
+            "Maori": "mi",
+            "Malayalam": "ml",
+            "Welsh": "cy",
+            "Slovak": "sk",
+            "Telugu": "te",
+            "Persian": "fa",
+            "Latvian": "lv",
+            "Bengali": "bn",
+            "Serbian": "sr",
+            "Azerbaijani": "az",
+            "Slovenian": "sl",
+            "Kannada": "kn",
+            "Estonian": "et",
+            "Macedonian": "mk",
+            "Breton": "br",
+            "Basque": "eu",
+            "Icelandic": "is",
+            "Armenian": "hy",
+            "Nepali": "ne",
+            "Mongolian": "mn",
+            "Bosnian": "bs",
+            "Kazakh": "kk",
+            "Albanian": "sq",
+            "Swahili": "sw",
+            "Galician": "gl",
+            "Marathi": "mr",
+            "Punjabi": "pa",
+            "Sinhala": "si",
+            "Khmer": "km",
+            "Shona": "sn",
+            "Yoruba": "yo",
+            "Somali": "so",
+            "Afrikaans": "af",
+            "Occitan": "oc",
+            "Georgian": "ka",
+            "Belarusian": "be",
+            "Tajik": "tg",
+        }
+
+        # 如果是枚举，取其 value
+        if isinstance(value, TranscribeLanguageEnum):
+            value = value.value
+
+        # 如果已经是语言代码（2-3个字母），直接返回
+        if isinstance(value, str) and len(value) <= 3 and value.lower() in [
+            "af", "am", "ar", "as", "az", "ba", "be", "bg", "bn", "bo", "br", "bs",
+            "ca", "cs", "cy", "da", "de", "el", "en", "es", "et", "eu", "fa", "fi",
+            "fo", "fr", "gl", "gu", "ha", "haw", "he", "hi", "hr", "ht", "hu", "hy",
+            "id", "is", "it", "ja", "jw", "ka", "kk", "km", "kn", "ko", "la", "lb",
+            "ln", "lo", "lt", "lv", "mg", "mi", "mk", "ml", "mn", "mr", "ms", "mt",
+            "my", "ne", "nl", "nn", "no", "oc", "pa", "pl", "ps", "pt", "ro", "ru",
+            "sa", "sd", "si", "sk", "sl", "sn", "so", "sq", "sr", "su", "sv", "sw",
+            "ta", "te", "tg", "th", "tk", "tl", "tr", "tt", "uk", "ur", "uz", "vi",
+            "yi", "yo", "zh", "yue"
+        ]:
+            return value.lower()
+
+        # 映射语言名称到代码
+        return language_map.get(value, None)
 
 
 class WhisperModelEnum(Enum):

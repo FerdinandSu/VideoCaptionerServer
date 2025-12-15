@@ -6,9 +6,24 @@
 
 简体中文 / [正體中文](./legacy-docs/README_TW.md) / [English](./legacy-docs/README_EN.md) / [日本語](./legacy-docs/README_JA.md)
 
-📚 **[在线文档](https://weifeng2333.github.io/VideoCaptioner/)** | 🚀 **[快速开始](https://weifeng2333.github.io/VideoCaptioner/guide/getting-started)** | ⚙️ **[配置指南](https://weifeng2333.github.io/VideoCaptioner/config/llm)**
+📚 **[文档](./docs/README.md)** | 🚀 **[快速开始](./docs/api/quickstart.md)** | ⚙️ **[配置指南](./docs/configuration/settings.md)** | 🐳 **[Docker 部署](./docs/deployment/DOCKER_DEPLOYMENT.md)**
 
 </div>
+
+---
+
+> **📢 重要更新**: 本项目现已转型为 **纯后端 RPC 服务**，不再提供 GUI 界面。
+>
+> - ✅ **Docker 化部署** - 开箱即用的容器化方案
+> - ✅ **RESTful API** - 完整的 RPC 接口
+> - ✅ **GPU 加速** - NVIDIA CUDA 支持
+> - ✅ **生产就绪** - 稳定可靠的后端服务
+>
+> **新用户请阅读**: [📖 新版文档](./docs/README.md) | [🚀 API 快速入门](./docs/api/quickstart.md)
+>
+> **GUI 版本说明**: 旧版 GUI 相关文档已移至 [docs-old-backup/](./docs-old-backup/)
+
+---
 
 ## 项目介绍
 

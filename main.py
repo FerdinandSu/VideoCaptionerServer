@@ -1,51 +1,35 @@
+#!/usr/bin/env python
+# coding:utf-8
 """
-Copyright (c) 2024 [VideoCaptioner]
-All rights reserved.
-
-Author: Weifeng
+VideoCaptioner RPC Server - 纯后端服务
+无 UI 版本，仅提供 RPC 接口
 """
 
+import logging
 import os
-import platform
+import signal
 import sys
-import traceback
+import threading
+from pathlib import Path
 
-from app.config import TRANSLATIONS_PATH
+# 添加项目根目录到 Python 路径
+project_root = Path(__file__).parent
+sys.path.insert(0, str(project_root))
 
-# Add project root directory to Python path
-project_root = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(project_root)
+# 配置日志
+from app.core.utils.logger import setup_logger
+from app.core.utils.cache import enable_cache, disable_cache
+from app.common.config import cfg
+from app.rpc import start_rpc_server, stop_rpc_server
 
-# Use appropriate library folder name based on OS
-lib_folder = "Lib" if platform.system() == "Windows" else "lib"
-plugin_path = os.path.join(
-    sys.prefix, lib_folder, "site-packages", "PyQt5", "Qt5", "plugins"
-)
-os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = plugin_path
-
-# Delete pyd files app*.pyd
-for file in os.listdir():
-    if file.startswith("app") and file.endswith(".pyd"):
-        os.remove(file)
-
-# Now import the modules that depend on the setup above
-from PyQt5.QtCore import Qt, QTranslator  # noqa: E402
-from PyQt5.QtWidgets import QApplication  # noqa: E402
-from qfluentwidgets import FluentTranslator  # noqa: E402
-
-from app.common.config import cfg  # noqa: E402
-from app.config import RESOURCE_PATH  # noqa: E402
-from app.core.utils.cache import disable_cache, enable_cache  # noqa: E402
-from app.core.utils.logger import setup_logger  # noqa: E402
-from app.view.main_window import MainWindow  # noqa: E402
-from app.rpc import start_rpc_server, stop_rpc_server  # noqa: E402
-
-logger_instance = setup_logger("VideoCaptioner")
+logger = setup_logger("VideoCaptioner-RPC")
 
 
 def exception_hook(exctype, value, tb):
-    logger_instance.error("".join(traceback.format_exception(exctype, value, tb)))
-    sys.__excepthook__(exctype, value, tb)  # 调用默认的异常处理
+    """全局异常处理"""
+    import traceback
+    logger.error("".join(traceback.format_exception(exctype, value, tb)))
+    sys.__excepthook__(exctype, value, tb)
 
 
 sys.excepthook = exception_hook
@@ -53,55 +37,65 @@ sys.excepthook = exception_hook
 # 应用缓存配置
 if cfg.get(cfg.cache_enabled):
     enable_cache()
+    logger.info("缓存已启用")
 else:
     disable_cache()
+    logger.info("缓存已禁用")
+
+# 用于控制主线程退出的事件
+shutdown_event = threading.Event()
 
 
-# Enable DPI Scale
-if cfg.get(cfg.dpiScale) == "Auto":
-    QApplication.setHighDpiScaleFactorRoundingPolicy(
-        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough  # type: ignore
-    )
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)  # type: ignore
-else:
-    os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
-    os.environ["QT_SCALE_FACTOR"] = str(cfg.get(cfg.dpiScale))
-QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)  # type: ignore
+def signal_handler(signum, frame):
+    """处理退出信号"""
+    logger.info("收到退出信号，正在关闭 RPC 服务器...")
+    stop_rpc_server()
+    shutdown_event.set()
 
-app = QApplication(sys.argv)
-app.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings, True)  # type: ignore
 
-# Internationalization
-locale = cfg.get(cfg.language).value
-translator = FluentTranslator(locale)
-myTranslator = QTranslator()
-translations_path = TRANSLATIONS_PATH / f"VideoCaptioner_{locale.name()}.qm"
-myTranslator.load(str(translations_path))
-app.installTranslator(translator)
-app.installTranslator(myTranslator)
+def main():
+    """主函数"""
+    logger.info("=" * 60)
+    logger.info("VideoCaptioner RPC 服务器 (无 UI 版本)")
+    logger.info("=" * 60)
 
-# 根据配置启动 RPC 服务器
-if cfg.get(cfg.rpc_enabled):
-    logger_instance.info("启动 RPC 服务器...")
+    # 注册信号处理器
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
+    # 读取 RPC 配置
+    rpc_host = cfg.get(cfg.rpc_host) or "localhost"
+    rpc_port = cfg.get(cfg.rpc_port) or 5000
+
+    logger.info(f"Flask API 地址: http://{rpc_host}:{rpc_port}")
+    logger.info(f"Swagger UI: http://{rpc_host}:{rpc_port}/api/docs")
+    logger.info("可用端点:")
+    logger.info(f"  - GET  /health                    健康检查")
+    logger.info(f"  - GET  /status                    获取连接状态")
+    logger.info(f"  - GET  /set-master?url=           设置 Master URL")
+    logger.info(f"  - GET  /disconnect-master         断开 Master 连接")
+    logger.info(f"  - POST /api/rpc/start-subtitize   启动字幕化任务")
+    logger.info(f"  - POST /api/rpc/stop-subtitize    停止字幕化任务")
+    logger.info(f"  - GET  /api/rpc/get-status        获取任务状态")
+    logger.info("=" * 60)
+
     try:
-        rpc_host = cfg.get(cfg.rpc_host)
-        rpc_port = cfg.get(cfg.rpc_port)
+        # 启动 RPC 服务器
         start_rpc_server(host=rpc_host, port=rpc_port)
-        logger_instance.info(f"RPC 服务器已启动: http://{rpc_host}:{rpc_port}")
-    except Exception as e:
-        logger_instance.error(f"RPC 服务器启动失败: {e}", exc_info=True)
+        logger.info("RPC 服务器已启动，按 Ctrl+C 退出")
 
-w = MainWindow()
-w.show()
-exit_code = app.exec_()
+        # 保持主线程运行（跨平台方式）
+        shutdown_event.wait()
 
-# 清理 RPC 服务器
-if cfg.get(cfg.rpc_enabled):
-    logger_instance.info("停止 RPC 服务器...")
-    try:
+    except KeyboardInterrupt:
+        logger.info("收到键盘中断信号")
         stop_rpc_server()
-        logger_instance.info("RPC 服务器已停止")
     except Exception as e:
-        logger_instance.error(f"停止 RPC 服务器失败: {e}", exc_info=True)
+        logger.error(f"RPC 服务器启动失败: {e}", exc_info=True)
+        sys.exit(1)
 
-sys.exit(exit_code)
+    logger.info("RPC 服务器已关闭")
+
+
+if __name__ == "__main__":
+    main()
