@@ -1,5 +1,5 @@
-# 使用包含 cuDNN 的 NVIDIA CUDA 基础镜像
-FROM nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
+# 使用 NVIDIA CUDA 基础镜像（不含 cuDNN，我们将安装 cuDNN 9）
+FROM nvidia/cuda:12.2.2-runtime-ubuntu22.04
 
 # 设置环境变量
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -32,6 +32,15 @@ COPY main.py ./
 
 # 安装 Python 依赖
 RUN python3 -m uv pip install --system -e .
+
+# 安装 cuDNN 9 和 cuBLAS（faster-whisper 需要）
+RUN python3 -m pip install nvidia-cudnn-cu12 nvidia-cublas-cu12
+
+# 查找并设置 cuDNN 库路径
+RUN CUDNN_PATH=$(python3 -c "import nvidia.cudnn; print(nvidia.cudnn.__path__[0])") && \
+    echo "cuDNN path: $CUDNN_PATH" && \
+    ln -s $CUDNN_PATH/lib/libcudnn*.so* /usr/local/lib/ && \
+    ldconfig
 
 # 创建必要的目录
 RUN mkdir -p /app/AppData/models \
