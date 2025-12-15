@@ -1,8 +1,6 @@
 # Docker Compose 开发环境覆盖配置
 # 使用方法: docker compose -f docker-compose.yml -f docker-compose.override.yml up
 
-version: '3.8'
-
 services:
   videocaptioner:
     # 开发模式：挂载源代码以支持热重载
