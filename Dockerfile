@@ -29,6 +29,7 @@ WORKDIR /app
 COPY pyproject.toml ./
 COPY app ./app
 COPY main.py ./
+COPY test_cudnn.py ./
 
 # 安装 Python 依赖
 RUN python3 -m uv pip install --system -e .
@@ -41,6 +42,13 @@ RUN CUDNN_PATH=$(python3 -c "import nvidia.cudnn; print(nvidia.cudnn.__path__[0]
     echo "cuDNN path: $CUDNN_PATH" && \
     ln -s $CUDNN_PATH/lib/libcudnn*.so* /usr/local/lib/ && \
     ldconfig
+
+# 测试 cuDNN 和 faster-whisper 是否正常工作
+RUN echo "\n======================================" && \
+    echo "运行环境测试..." && \
+    echo "======================================\n" && \
+    python3 test_cudnn.py && \
+    echo "\n✓ 环境测试通过，继续构建...\n"
 
 # 创建必要的目录
 RUN mkdir -p /app/AppData/models \

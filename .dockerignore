@@ -42,6 +42,7 @@ legacy-docs/
 # Tests
 tests/
 test_*.py
+!test_cudnn.py
 
 # Docker
 Dockerfile

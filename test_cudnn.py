@@ -1,0 +1,141 @@
+#!/usr/bin/env python3
+# coding: utf-8
+"""测试 faster-whisper 和 cuDNN 是否正常工作"""
+
+import sys
+import os
+
+def test_cudnn():
+    """测试 cuDNN 是否可以导入"""
+    print("=" * 60)
+    print("测试 1: 检查 cuDNN 库")
+    print("=" * 60)
+
+    try:
+        import nvidia.cudnn
+        print(f"✓ cuDNN 导入成功")
+        print(f"  版本: {nvidia.cudnn.__version__}")
+        print(f"  路径: {nvidia.cudnn.__path__[0]}")
+
+        # 检查库文件
+        cudnn_lib_path = os.path.join(nvidia.cudnn.__path__[0], 'lib')
+        if os.path.exists(cudnn_lib_path):
+            libs = [f for f in os.listdir(cudnn_lib_path) if 'libcudnn' in f]
+            print(f"  库文件数量: {len(libs)}")
+            if libs:
+                print(f"  示例: {libs[0]}")
+
+        return True
+    except Exception as e:
+        print(f"✗ cuDNN 导入失败: {e}")
+        return False
+
+
+def test_cublas():
+    """测试 cuBLAS 是否可以导入"""
+    print("\n" + "=" * 60)
+    print("测试 2: 检查 cuBLAS 库")
+    print("=" * 60)
+
+    try:
+        import nvidia.cublas
+        print(f"✓ cuBLAS 导入成功")
+        print(f"  版本: {nvidia.cublas.__version__}")
+        return True
+    except Exception as e:
+        print(f"✗ cuBLAS 导入失败: {e}")
+        return False
+
+
+def test_faster_whisper():
+    """测试 faster-whisper 是否可以导入和初始化"""
+    print("\n" + "=" * 60)
+    print("测试 3: 检查 faster-whisper")
+    print("=" * 60)
+
+    try:
+        from faster_whisper import WhisperModel
+        print(f"✓ faster-whisper 导入成功")
+
+        # 尝试创建一个小模型实例（不加载权重）
+        print("  尝试初始化模型（tiny 模型，仅测试）...")
+        model = WhisperModel("tiny", device="cuda", compute_type="float16")
+        print(f"✓ 模型初始化成功")
+        print(f"  设备: cuda")
+        print(f"  计算类型: float16")
+
+        del model  # 释放内存
+        return True
+    except Exception as e:
+        print(f"✗ faster-whisper 测试失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+
+def test_cuda_availability():
+    """测试 CUDA 是否可用"""
+    print("\n" + "=" * 60)
+    print("测试 4: 检查 CUDA 可用性")
+    print("=" * 60)
+
+    try:
+        import torch
+        cuda_available = torch.cuda.is_available()
+        print(f"PyTorch CUDA 可用: {cuda_available}")
+
+        if cuda_available:
+            print(f"  CUDA 设备数量: {torch.cuda.device_count()}")
+            print(f"  当前设备: {torch.cuda.current_device()}")
+            print(f"  设备名称: {torch.cuda.get_device_name(0)}")
+
+        return cuda_available
+    except Exception as e:
+        print(f"⚠ CUDA 检查失败: {e}")
+        return False
+
+
+def main():
+    """运行所有测试"""
+    print("\n" + "=" * 60)
+    print("faster-whisper + cuDNN 环境测试")
+    print("=" * 60 + "\n")
+
+    results = []
+
+    # 测试 1: cuDNN
+    results.append(("cuDNN", test_cudnn()))
+
+    # 测试 2: cuBLAS
+    results.append(("cuBLAS", test_cublas()))
+
+    # 测试 3: CUDA
+    results.append(("CUDA", test_cuda_availability()))
+
+    # 测试 4: faster-whisper
+    results.append(("faster-whisper", test_faster_whisper()))
+
+    # 汇总结果
+    print("\n" + "=" * 60)
+    print("测试结果汇总")
+    print("=" * 60)
+
+    all_passed = True
+    for name, passed in results:
+        status = "✓ 通过" if passed else "✗ 失败"
+        print(f"{name:20} : {status}")
+        if not passed:
+            all_passed = False
+
+    print("=" * 60)
+
+    if all_passed:
+        print("\n🎉 所有测试通过！环境配置正确。\n")
+        return 0
+    else:
+        print("\n❌ 部分测试失败，请检查配置。\n")
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
