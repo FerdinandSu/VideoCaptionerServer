@@ -46,6 +46,8 @@ RUN python3 -m uv pip install --system -e .
 
 COPY test_cudnn.py ./
 
+COPY resource/models/faster-whisper-tiny/ /test/faster-whisper-tiny/
+
 # 第六步：测试 cuDNN 和 faster-whisper 是否正常工作
 RUN echo "\n======================================" && \
     echo "运行环境测试..." && \

@@ -71,6 +71,7 @@ def test_faster_whisper():
 
         # 检查本地测试模型是否存在
         test_model_paths = [
+            "/test/faster-whisper-tiny/",
             "/app/AppData/models/faster-whisper-tiny/",  # Docker 环境
             "resource/models/faster-whisper-tiny",      # 本地开发环境
             "AppData/models/faster-whisper-tiny",       # 备选路径
@@ -91,7 +92,7 @@ def test_faster_whisper():
             del model
         else:
             print(f"  本地测试模型不存在")
-            print(f"  搜索路径: {test_model_paths}")
+            print(f"  搜索路径: {model_path}")
             print(f"  尝试下载 tiny 模型进行测试...")
 
             # 使用在线 tiny 模型进行测试
