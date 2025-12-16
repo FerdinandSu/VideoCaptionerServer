@@ -122,8 +122,8 @@ class FasterWhisperPythonASR(BaseASR):
             # 创建 ASRDataSeg
             seg = ASRDataSeg(
                 text=text,
-                start=segment.start,
-                end=segment.end,
+                start_time=int(segment.start * 1000),  # 转换为毫秒
+                end_time=int(segment.end * 1000),      # 转换为毫秒
             )
 
             # 如果需要单词级时间戳
