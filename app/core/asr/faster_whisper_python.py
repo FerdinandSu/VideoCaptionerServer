@@ -94,51 +94,34 @@ class FasterWhisperPythonASR(BaseASR):
         logger.info("Model loaded successfully")
         return model
 
-    def _make_segments(self, segments: List[tuple]) -> List[ASRDataSeg]:
-        """将 faster-whisper 的输出转换为 ASRDataSeg 列表"""
-        asr_segments = []
+    def _make_segments(self, resp_data: str) -> List[ASRDataSeg]:
+        """Parse FasterWhisper response data and convert to ASRDataSeg list.
 
-        # 幻觉文本关键词列表
-        hallucination_keywords = [
-            "请不吝点赞 订阅 转发",
-            "打赏支持明镜",
-        ]
+        Args:
+            resp_data: FasterWhisper SRT format output
 
-        for segment in segments:
-            text = segment.text.strip()
-
-            # 跳过空文本
-            if not text:
-                continue
-
-            # 跳过音乐标记
-            if text.startswith(("【", "[", "(", "（")):
-                continue
-
-            # 跳过包含幻觉关键词的文本
-            if any(keyword in text for keyword in hallucination_keywords):
-                continue
-
-            # 创建 ASRDataSeg
-            seg = ASRDataSeg(
-                text=text,
-                start_time=int(segment.start * 1000),  # 转换为毫秒
-                end_time=int(segment.end * 1000),      # 转换为毫秒
+        Returns:
+            List of ASRDataSeg objects
+        """
+        if isinstance(resp_data, str):
+            # 如果是 SRT 格式字符串，直接解析
+            asr_data = ASRData.from_srt(resp_data)
+            return asr_data.segments
+        else:
+            # 如果是 List[Segment]，需要转换
+            logger.warning(
+                f"Expected SRT string but got {type(resp_data)}, attempting conversion"
             )
-
-            # 如果需要单词级时间戳
-            if self.need_word_time_stamp and hasattr(segment, 'words'):
-                seg.words = []
-                for word in segment.words:
-                    seg.words.append({
-                        'word': word.word,
-                        'start': word.start,
-                        'end': word.end,
-                    })
-
-            asr_segments.append(seg)
-
-        return asr_segments
+            segments = []
+            for seg in resp_data:
+                segments.append(
+                    ASRDataSeg(
+                        text=seg.text,
+                        start_time=int(seg.start * 1000),
+                        end_time=int(seg.end * 1000),
+                    )
+                )
+            return segments
 
     def _run(
         self, callback: Optional[Callable[[int, str], None]] = None, **kwargs: Any
@@ -201,9 +184,39 @@ class FasterWhisperPythonASR(BaseASR):
                     progress = min(progress, 95)
                     callback(progress, f"转录中: {segment.end:.1f}s / {total_duration:.1f}s")
 
-            # 转换为 ASRDataSeg
+            # 过滤并转换为 ASRDataSeg
             callback(*ASRStatus.TRANSCRIBING.with_progress(95))
-            asr_segments = self._make_segments(segments_list)
+
+            # 幻觉文本关键词列表
+            hallucination_keywords = [
+                "请不吝点赞 订阅 转发",
+                "打赏支持明镜",
+            ]
+
+            asr_segments = []
+            for segment in segments_list:
+                text = segment.text.strip()
+
+                # 跳过空文本
+                if not text:
+                    continue
+
+                # 跳过音乐标记
+                if text.startswith(("【", "[", "(", "（")):
+                    continue
+
+                # 跳过包含幻觉关键词的文本
+                if any(keyword in text for keyword in hallucination_keywords):
+                    continue
+
+                # 创建 ASRDataSeg
+                seg = ASRDataSeg(
+                    text=text,
+                    start_time=int(segment.start * 1000),  # 转换为毫秒
+                    end_time=int(segment.end * 1000),      # 转换为毫秒
+                )
+
+                asr_segments.append(seg)
 
             # 创建 ASRData 并转换为 SRT 格式
             asr_data = ASRData(segments=asr_segments)

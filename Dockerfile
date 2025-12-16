@@ -28,12 +28,16 @@ WORKDIR /app
 # 第一步：只复制依赖声明文件（改动频率低）
 COPY pyproject.toml ./
 
-# 第二步：复制项目代码（改动频率高，放在后面）
-COPY app ./app
-COPY main.py ./
+
 
 # 第三步：安装项目依赖（只有代码或 pyproject.toml 改变时才重新执行）
 RUN python3 -m uv pip install --system -e .
+
+# 第二步：复制项目代码（改动频率高，放在后面）
+
+
+COPY app ./app
+COPY main.py ./
 
 COPY test_cudnn.py ./
 
