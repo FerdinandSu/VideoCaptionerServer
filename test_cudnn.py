@@ -1,68 +1,14 @@
 #!/usr/bin/env python3
 # coding: utf-8
-"""测试 faster-whisper 和 cuDNN 是否正常工作"""
+"""测试 faster-whisper 和 cuDNN 是否正常工作（运行时测试）"""
 
 import sys
 import os
 
-def test_cudnn():
-    """测试 cuDNN 是否可以导入"""
-    print("=" * 60)
-    print("测试 1: 检查 cuDNN 库")
-    print("=" * 60)
-
-    try:
-        import nvidia.cudnn
-        print(f"✓ cuDNN 导入成功")
-
-        # 版本信息可能不存在
-        try:
-            print(f"  版本: {nvidia.cudnn.__version__}")
-        except AttributeError:
-            print(f"  版本: (版本信息不可用)")
-
-        print(f"  路径: {nvidia.cudnn.__path__[0]}")
-
-        # 检查库文件
-        cudnn_lib_path = os.path.join(nvidia.cudnn.__path__[0], 'lib')
-        if os.path.exists(cudnn_lib_path):
-            libs = [f for f in os.listdir(cudnn_lib_path) if 'libcudnn' in f]
-            print(f"  库文件数量: {len(libs)}")
-            if libs:
-                print(f"  示例: {libs[0]}")
-
-        return True
-    except Exception as e:
-        print(f"✗ cuDNN 导入失败: {e}")
-        return False
-
-
-def test_cublas():
-    """测试 cuBLAS 是否可以导入"""
-    print("\n" + "=" * 60)
-    print("测试 2: 检查 cuBLAS 库")
-    print("=" * 60)
-
-    try:
-        import nvidia.cublas
-        print(f"✓ cuBLAS 导入成功")
-
-        # 版本信息可能不存在
-        try:
-            print(f"  版本: {nvidia.cublas.__version__}")
-        except AttributeError:
-            print(f"  版本: (版本信息不可用)")
-
-        return True
-    except Exception as e:
-        print(f"✗ cuBLAS 导入失败: {e}")
-        return False
-
-
 def test_faster_whisper():
     """测试 faster-whisper 是否可以导入和初始化"""
-    print("\n" + "=" * 60)
-    print("测试 3: 检查 faster-whisper")
+    print("=" * 60)
+    print("测试: 检查 faster-whisper + GPU")
     print("=" * 60)
 
     try:
@@ -114,39 +60,20 @@ def test_faster_whisper():
 def main():
     """运行所有测试"""
     print("\n" + "=" * 60)
-    print("faster-whisper + cuDNN 环境测试")
+    print("faster-whisper GPU 环境测试")
     print("=" * 60 + "\n")
 
-    results = []
+    passed = test_faster_whisper()
 
-    # 测试 1: cuDNN
-    results.append(("cuDNN", test_cudnn()))
-
-    # 测试 2: cuBLAS
-    results.append(("cuBLAS", test_cublas()))
-
-    # 测试 3: faster-whisper
-    results.append(("faster-whisper", test_faster_whisper()))
-
-    # 汇总结果
     print("\n" + "=" * 60)
-    print("测试结果汇总")
+    print("测试结果")
     print("=" * 60)
 
-    all_passed = True
-    for name, passed in results:
-        status = "✓ 通过" if passed else "✗ 失败"
-        print(f"{name:20} : {status}")
-        if not passed:
-            all_passed = False
-
-    print("=" * 60)
-
-    if all_passed:
-        print("\n🎉 所有测试通过！环境配置正确。\n")
+    if passed:
+        print("\n🎉 测试通过！GPU 环境配置正确。\n")
         return 0
     else:
-        print("\n❌ 部分测试失败，请检查配置。\n")
+        print("\n❌ 测试失败，请检查 GPU 驱动和配置。\n")
         return 1
 
 
