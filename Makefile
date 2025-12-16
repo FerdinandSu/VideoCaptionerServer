@@ -1,4 +1,8 @@
-.PHONY: help build up down logs restart clean test rebuild test-cudnn
+REPOSITORY=fscr.fers.top
+IMAGE_NAME=videocaptioner
+TAG=latest
+
+.PHONY: help build up down logs restart clean test rebuild test-cudnn publish load
 
 help:
 	@echo "VideoCaptioner Docker 管理命令"
@@ -13,6 +17,8 @@ help:
 	@echo "  make shell       - 进入容器"
 	@echo "  make test        - 测试 API"
 	@echo "  make test-cudnn  - 测试 cuDNN 环境"
+	@echo "  make publish     - 推送镜像到私有仓库"
+	@echo "  make load        - 从私有仓库拉取镜像"
 	@echo "  make clean       - 清理容器和镜像"
 	@echo "  make gpu-test    - 测试 GPU 访问"
 
@@ -69,3 +75,17 @@ prod-up:
 
 prod-logs:
 	docker compose -f docker-compose.yml logs -f --tail=100
+
+# 镜像发布
+publish:
+	@echo "推送镜像到私有仓库: $(REPOSITORY)/$(IMAGE_NAME):$(TAG)"
+	docker tag $(IMAGE_NAME):$(TAG) $(REPOSITORY)/$(IMAGE_NAME):$(TAG)
+	docker push $(REPOSITORY)/$(IMAGE_NAME):$(TAG)
+	@echo "✓ 镜像已成功推送"
+
+# 镜像拉取
+load:
+	@echo "从私有仓库拉取镜像: $(REPOSITORY)/$(IMAGE_NAME):$(TAG)"
+	docker pull $(REPOSITORY)/$(IMAGE_NAME):$(TAG)
+	docker tag $(REPOSITORY)/$(IMAGE_NAME):$(TAG) $(IMAGE_NAME):$(TAG)
+	@echo "✓ 镜像已成功拉取并标记为 $(IMAGE_NAME):$(TAG)"
