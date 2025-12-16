@@ -130,6 +130,15 @@ class SubtitizeExecutor:
         import tempfile
 
         try:
+            # 检查输出文件是否已存在
+            output_path_obj = Path(output_path)
+            if output_path_obj.exists():
+                logger.info(f"转录文件已存在，跳过转录: {output_path}")
+                task_manager.update_progress(
+                    5000, SubtitizeTaskState.OPTIMIZING, message="转录文件已存在，跳过转录"
+                )
+                return output_path
+
             # 获取当前任务
             task = task_manager.get_current_task()
             if task is None or task.task_id != task_id:
@@ -263,6 +272,15 @@ class SubtitizeExecutor:
             处理后的字幕文件路径，失败返回 None
         """
         try:
+            # 检查输出文件是否已存在
+            output_path_obj = Path(output_path)
+            if output_path_obj.exists():
+                logger.info(f"处理后的字幕文件已存在，跳过处理: {output_path}")
+                task_manager.update_progress(
+                    10000, SubtitizeTaskState.COMPLETED, message="字幕文件已存在，跳过处理"
+                )
+                return output_path
+
             # 检查字幕文件是否存在
             subtitle_path_obj = Path(subtitle_path)
             if not subtitle_path_obj.exists():

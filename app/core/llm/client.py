@@ -94,7 +94,13 @@ def get_llm_client() -> OpenAI:
                         "OPENAI_BASE_URL and OPENAI_API_KEY environment variables must be set"
                     )
 
-                _global_client = OpenAI(base_url=base_url, api_key=api_key)
+                # 设置超时：60秒连接超时，300秒读取超时
+                _global_client = OpenAI(
+                    base_url=base_url,
+                    api_key=api_key,
+                    timeout=300.0,  # 5分钟总超时
+                    max_retries=2,  # 最多重试2次
+                )
 
     return _global_client
 
@@ -136,22 +142,30 @@ def call_llm(
     """
     client = get_llm_client()
 
-    response = client.chat.completions.create(
-        model=model,
-        messages=messages,  # pyright: ignore[reportArgumentType]
-        temperature=temperature,
-        **kwargs,
-    )
+    logger.debug(f"调用 LLM API: model={model}, temperature={temperature}")
 
-    # Validate response (exceptions are not cached by diskcache)
-    if not (
-        response
-        and hasattr(response, "choices")
-        and response.choices
-        and len(response.choices) > 0
-        and hasattr(response.choices[0], "message")
-        and response.choices[0].message.content
-    ):
-        raise ValueError("Invalid OpenAI API response: empty choices or content")
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages,  # pyright: ignore[reportArgumentType]
+            temperature=temperature,
+            **kwargs,
+        )
 
-    return response
+        # Validate response (exceptions are not cached by diskcache)
+        if not (
+            response
+            and hasattr(response, "choices")
+            and response.choices
+            and len(response.choices) > 0
+            and hasattr(response.choices[0], "message")
+            and response.choices[0].message.content
+        ):
+            raise ValueError("Invalid OpenAI API response: empty choices or content")
+
+        logger.debug("LLM API 调用成功")
+        return response
+
+    except Exception as e:
+        logger.error(f"LLM API 调用失败: {type(e).__name__}: {e}")
+        raise

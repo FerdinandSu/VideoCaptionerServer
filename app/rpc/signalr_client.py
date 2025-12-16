@@ -35,6 +35,7 @@ class SignalRClientManager:
         self._is_connected = False
         self._handlers: Dict[str, Callable] = {}
         self._lock = threading.Lock()
+        self._warned_methods = set()  # 记录已经警告过的方法
 
         logger.info("SignalR 客户端管理器已初始化")
 
@@ -155,7 +156,10 @@ class SignalRClientManager:
             *args: 参数
         """
         if not self._is_connected or not self._connection:
-            logger.warning(f"未连接到 Master，无法发送消息: {method_name}")
+            # 只在首次遇到该方法时警告
+            if method_name not in self._warned_methods:
+                logger.warning(f"未连接到 Master，无法发送消息: {method_name}")
+                self._warned_methods.add(method_name)
             return
 
         try:
@@ -176,7 +180,10 @@ class SignalRClientManager:
             返回值
         """
         if not self._is_connected or not self._connection:
-            logger.warning(f"未连接到 Master，无法调用方法: {method_name}")
+            # 只在首次遇到该方法时警告
+            if method_name not in self._warned_methods:
+                logger.warning(f"未连接到 Master，无法调用方法: {method_name}")
+                self._warned_methods.add(method_name)
             return None
 
         try:
@@ -191,6 +198,8 @@ class SignalRClientManager:
         """连接打开事件"""
         logger.info("SignalR 连接已打开")
         self._is_connected = True
+        # 清空警告记录，允许重新连接后显示新的警告
+        self._warned_methods.clear()
 
     def _on_close(self):
         """连接关闭事件"""
